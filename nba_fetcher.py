@@ -4,31 +4,31 @@ import logging
 from utils import get_logo_path
 from db import save_game
 from datetime import datetime
+import pytz
 
 logger = logging.getLogger("NBA Boxscore App")
 
 STAT_TRANSLATIONS = {
-    "points": "Pontos",
-    "assists": "Assistências",
-    "reboundsTotal": "Rebotes",
-    "reboundsOffensive": "Reb. Ofensivos",
-    "reboundsDefensive": "Reb. Defensivos",
-    "blocks": "Tocos",
-    "steals": "Roubos",
-    "fieldGoalsMade": "FG Convertidos",
-    "fieldGoalsAttempted": "FG Tentados",
-    "fieldGoalsPercentage": "FG %",
-    "threePointersMade": "3PT Convertidos",
-    "threePointersAttempted": "3PT Tentados",
-    "threePointersPercentage": "3PT %",
-    "freeThrowsMade": "Lances Livres Convertidos",
-    "freeThrowsAttempted": "Lances Livres Tentados",
-    "freeThrowsPercentage": "LL %",
-    "turnovers": "Erros",
-    "foulsPersonal": "Faltas",
-    "minutesCalculated": "Minutos",
+    "points": "PTS",
+    "assists": "AST",
+    "reboundsTotal": "REB",
+    "reboundsOffensive": "OFF",
+    "reboundsDefensive": "DEF",
+    "blocks": "BLK",
+    "steals": "STL",
+    "fieldGoalsMade": "FGM",
+    "fieldGoalsAttempted": "FGA",
+    "fieldGoalsPercentage": "FG%",
+    "threePointersMade": "3PM",
+    "threePointersAttempted": "3PA",
+    "threePointersPercentage": "3P%",
+    "freeThrowsMade": "FTM",
+    "freeThrowsAttempted": "FTA",
+    "freeThrowsPercentage": "FT%",
+    "turnovers": "TO",
+    "foulsPersonal": "PF",
+    "minutesCalculated": "MIN",
 }
-
 STAT_ORDER = [
     "points",
     "assists",
@@ -55,9 +55,23 @@ STAT_ORDER = [
 def get_today_games():
     sb = scoreboard.ScoreBoard()
     games = sb.get_dict()["scoreboard"]["games"]
-    today = datetime.now().strftime("%Y-%m-%d")
+    br_tz = pytz.timezone("America/Sao_Paulo")
     game_list = []
+    today = datetime.now().strftime("%Y-%m-%d")
     for g in games:
+        # Converte o horário do jogo para o Brasil
+        game_time_utc = g.get("gameTimeUTC")
+        if game_time_utc:
+            dt_utc = datetime.strptime(game_time_utc, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=pytz.utc)
+            game_time_br = dt_utc.astimezone(br_tz).strftime("%H:%M")
+        else:
+            game_time_br = ""
+        if g["gameStatus"] == 3:
+            status = "Encerrado"
+        elif g["gameStatus"] == 2:
+            status = "Em andamento"
+        else:
+            status = "Agendado"
         game_data = {
             "game_id": g["gameId"],
             "home_team": g["homeTeam"]["teamTricode"],
@@ -65,7 +79,9 @@ def get_today_games():
             "home_logo": get_logo_path(g["homeTeam"]["teamTricode"]),
             "away_logo": get_logo_path(g["awayTeam"]["teamTricode"]),
             "home_score": g["homeTeam"].get("score", 0),
-            "away_score": g["awayTeam"].get("score", 0)
+            "away_score": g["awayTeam"].get("score", 0),
+            "status": status,
+            "time": game_time_br
         }
         save_game(g["gameId"], today, game_data)
         game_list.append(game_data)

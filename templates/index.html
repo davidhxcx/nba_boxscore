@@ -21,6 +21,18 @@
             <input type="text" id="search" name="search" placeholder="Nome do jogador">
             <button type="submit">Buscar</button>
         </form>
+        <form method="get" action="/" style="text-align:center; margin-bottom: 18px;">
+    <label for="date"><strong>Escolha a data:</strong></label>
+    <input type="date" id="date" name="date" value="{{ date }}">
+    <label for="team" style="margin-left: 16px;"><strong>Time:</strong></label>
+    <select id="team" name="team">
+        <option value="">Todos</option>
+        {% for t in team_list %}
+            <option value="{{ t.abbreviation }}" {% if team == t.abbreviation %}selected{% endif %}>{{ t.full_name }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit">Buscar</button>
+</form>
     </div>
     <div style="text-align:center; margin-bottom: 18px;">
         <strong>Data:</strong> {{ today }}
@@ -28,7 +40,7 @@
     <ul class="games-list">
         {% for game in games %}
         <li class="game-item">
-            <a href="/boxscore/{{ game.game_id }}">
+            <div class="game-header" onclick="toggleBoxscore('{{ game.game_id }}')">
                 <span class="team-block">
                     <img class="team-logo" src="{{ game.home_logo }}" alt="{{ game.home_team }}">
                     <strong>{{ game.home_team }}</strong>
@@ -38,7 +50,16 @@
                     <img class="team-logo" src="{{ game.away_logo }}" alt="{{ game.away_team }}">
                     <strong>{{ game.away_team }}</strong>
                 </span>
-            </a>
+                <div class="game-status {{ game.status|lower|replace(' ', '-') }}">
+                    <strong>Status:</strong> {{ game.status }}
+                    {% if game.time %}
+                        <span class="game-time">{{ game.time }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="boxscore-content" id="boxscore-{{ game.game_id }}" style="display:none;">
+                <div class="loading-boxscore">Carregando boxscore...</div>
+            </div>
         </li>
         {% endfor %}
     </ul>
@@ -46,5 +67,7 @@
     Desenvolvido por David Anderson Pereira • Projeto open source • <a href="https://github.com/davidhxcx/nba_boxscore" target="_blank">GitHub</a><br>
     Logos e marcas NBA são propriedade de seus respectivos detentores. Este projeto é apenas para fins educacionais e de fã.
 </footer>
+<script src="/static/boxscore.js"></script>
+<div style="height: 48px;"></div>
 </body>
 </html>

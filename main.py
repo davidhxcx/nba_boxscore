@@ -12,6 +12,8 @@ from nba_api.stats.endpoints import commonallplayers
 from nba_api.stats.endpoints import playercareerstats
 from nba_api.stats.library.parameters import SeasonAll
 from nba_api.stats.library.http import NBAStatsHTTP
+from nba_api.stats.static import teams
+from nba_fetcher import get_boxscore
 from db import init_db
 import uvicorn
 import logging
@@ -36,6 +38,35 @@ logger = logging.getLogger("NBA Boxscore App")
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
+
+def get_team_list():
+    # Retorna uma lista de dicionários com 'abbreviation' e 'full_name'
+    return sorted(
+        [{"abbreviation": t["abbreviation"], "full_name": t["full_name"]} for t in teams.get_teams()],
+        key=lambda x: x["full_name"]
+    )
+
+@app.get("/api/boxscore/{game_id}", response_class=HTMLResponse)
+async def api_boxscore(request: Request, game_id: str):
+    boxscore = get_boxscore(game_id)
+    return templates.TemplateResponse(
+        "boxscore_partial.html",
+        {**boxscore, "request": request}
+    )
+
+@app.get("/")
+async def index(request: Request, date: str = None, team: str = None):
+    if not date:
+        date = datetime.now().strftime("%Y-%m-%d")
+    games = get_games_by_date(date)
+    if team:
+        games = [g for g in games if g["home_team"] == team or g["away_team"] == team]
+    today = datetime.strptime(date, "%Y-%m-%d").strftime("%d/%m/%Y")
+    team_list = get_team_list()
+    return templates.TemplateResponse(
+        "index.html",
+        {"request": request, "games": games, "today": today, "date": date, "team": team, "team_list": team_list}
+    )
 
 @app.get("/")
 async def index(request: Request, date: str = None):

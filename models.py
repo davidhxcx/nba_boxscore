@@ -1,3 +1,4 @@
+# Este projeto está licenciado sob a GNU GPLv3 - veja o arquivo LICENSE para detalhes.
 # models.py
 import sqlite3
 

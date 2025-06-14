@@ -13,6 +13,7 @@ from nba_api.stats.endpoints import playercareerstats
 from db import init_db
 import uvicorn
 import logging
+import pandas as pd
 
 templates = Jinja2Templates(directory="templates")
 
@@ -41,17 +42,22 @@ async def index(request: Request, date: str = None):
 
 @app.get("/historical_players")
 async def historical_players(request: Request, search: str = ""):
-    # Busca todos os jogadores históricos
-    players_df = commonallplayers.CommonAllPlayers(is_only_current_season=0).get_data_frames()[0]
-    if search:
-        players_df = players_df[players_df["DISPLAY_FIRST_LAST"].str.contains(search, case=False, na=False)]
-    players = players_df.to_dict(orient="records")
+    try:
+        players_df = commonallplayers.CommonAllPlayers(is_only_current_season=0, timeout=10).get_data_frames()[0]
+        if search:
+            players_df = players_df[players_df["DISPLAY_FIRST_LAST"].str.contains(search, case=False, na=False)]
+        players = players_df.to_dict(orient="records")
+        error_message = ""
+    except Exception as e:
+        players = []
+        error_message = "Não foi possível buscar os jogadores históricos no momento. Tente novamente mais tarde."
     return templates.TemplateResponse(
         "historical_players.html",
         {
             "request": request,
             "players": players,
-            "search": search
+            "search": search,
+            "error_message": error_message
         }
     )
 

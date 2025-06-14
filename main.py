@@ -10,12 +10,21 @@ from db import get_games_by_date
 from datetime import datetime
 from nba_api.stats.endpoints import commonallplayers
 from nba_api.stats.endpoints import playercareerstats
+from nba_api.stats.library.parameters import SeasonAll
+from nba_api.stats.library.http import NBAStatsHTTP
 from db import init_db
 import uvicorn
 import logging
 import pandas as pd
 
 templates = Jinja2Templates(directory="templates")
+
+NBAStatsHTTP.headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Origin': 'https://www.nba.com',
+    'Referer': 'https://www.nba.com/'
+}
 
 init_db()
 

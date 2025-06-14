@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Boxscore</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <a href="/" class="back-button">← Voltar para Jogos do Dia</a>
+    <h1 class="page-title">Boxscore</h1>
+    <div class="games-list">
+        <div class="game-item" style="margin-bottom:32px;">
+            <span class="team-block">
+                <img class="team-logo" src="{{ home_players[0].team_logo if home_players and home_players[0].team_logo else '' }}" alt="{{ home_team }}">
+                <strong>{{ home_team }}</strong>
+            </span>
+            <span class="score">{{ home_score }} x {{ away_score }}</span>
+            <span class="team-block">
+                <img class="team-logo" src="{{ away_players[0].team_logo if away_players and away_players[0].team_logo else '' }}" alt="{{ away_team }}">
+                <strong>{{ away_team }}</strong>
+            </span>
+        </div>
+        <div class="boxscore-border">
+            <h3>{{ home_team }}</h3>
+            <div class="table-wrapper">
+                <table>
+                    <tr>
+                        <th>Nome</th>
+                        {% for stat in stat_keys %}
+                        <th>{{ stat_translations.get(stat, stat) }}</th>
+                        {% endfor %}
+                    </tr>
+                    {% for player in home_players %}
+                    <tr>
+                        <td>{{ player.name }}</td>
+                        {% for stat in stat_keys %}
+                        <td>{{ player[stat] if stat in player else 0 }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+            <h3>{{ away_team }}</h3>
+            <div class="table-wrapper">
+                <table>
+                    <tr>
+                        <th>Nome</th>
+                        {% for stat in stat_keys %}
+                        <th>{{ stat_translations.get(stat, stat) }}</th>
+                        {% endfor %}
+                    </tr>
+                    {% for player in away_players %}
+                    <tr>
+                        <td>{{ player.name }}</td>
+                        {% for stat in stat_keys %}
+                        <td>{{ player[stat] if stat in player else 0 }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+    Desenvolvido por David Anderson Pereira • Projeto open source • <a href="https://github.com/davidhxcx/nba_boxscore" target="_blank">GitHub</a><br>
+    Logos e marcas NBA são propriedade de seus respectivos detentores. Este projeto é apenas para fins educacionais e de fã.
+</footer>
+</body>
+</html>

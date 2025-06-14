@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Estatísticas de {{ player_name }}</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <a href="/historical_players" class="back-button">← Voltar para Jogadores Históricos</a>
+    <h1 class="page-title">Estatísticas de {{ player_name }}</h1>
+    <div class="boxscore-border">
+        <div class="table-wrapper">
+            <table>
+                <tr>
+                    {% for stat in stat_keys %}
+                    <th>{{ stat_translations.get(stat, stat) }}</th>
+                    {% endfor %}
+                </tr>
+                {% for row in stats %}
+                <tr>
+                    {% for stat in stat_keys %}
+                    <td>
+                        {% if stat.endswith('_PCT') %}
+                            {{ (row[stat]*100)|round(1) if row[stat] is not none else 0 }}%
+                        {% else %}
+                            {{ row[stat] }}
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+    <footer class="footer">
+    Desenvolvido por David Anderson Pereira • Projeto open source • <a href="https://github.com/davidhxcx/nba_boxscore" target="_blank">GitHub</a><br>
+    Logos e marcas NBA são propriedade de seus respectivos detentores. Este projeto é apenas para fins educacionais e de fã.
+</footer>
+</body>
+</html>

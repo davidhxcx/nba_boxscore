@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Jogos do Dia</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1 class="page-title">Jogos do Dia</h1>
+    <form method="get" action="/" style="text-align:center; margin-bottom: 18px;">
+        <label for="date"><strong>Escolha a data:</strong></label>
+        <input type="date" id="date" name="date" value="{{ date }}">
+        <button type="submit">Buscar</button>
+    </form>
+        <div style="text-align:center; margin-bottom: 18px;">
+        <a  class="player-stats-link">Consultar estatísticas de jogadores da NBA</a>
+    </div>
+    <div class="historical-section">
+        <form method="get" action="/historical_players" style="text-align:center; margin-bottom: 18px;">
+            <label for="search"><strong>Buscar jogador:</strong></label>
+            <input type="text" id="search" name="search" placeholder="Nome do jogador">
+            <button type="submit">Buscar</button>
+        </form>
+    </div>
+    <div style="text-align:center; margin-bottom: 18px;">
+        <strong>Data:</strong> {{ today }}
+    </div>
+    <ul class="games-list">
+        {% for game in games %}
+        <li class="game-item">
+            <a href="/boxscore/{{ game.game_id }}">
+                <span class="team-block">
+                    <img class="team-logo" src="{{ game.home_logo }}" alt="{{ game.home_team }}">
+                    <strong>{{ game.home_team }}</strong>
+                </span>
+                <span class="score">{{ game.home_score }} x {{ game.away_score }}</span>
+                <span class="team-block">
+                    <img class="team-logo" src="{{ game.away_logo }}" alt="{{ game.away_team }}">
+                    <strong>{{ game.away_team }}</strong>
+                </span>
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+    <footer class="footer">
+    Desenvolvido por David Anderson Pereira • Projeto open source • <a href="https://github.com/davidhxcx/nba_boxscore" target="_blank">GitHub</a><br>
+    Logos e marcas NBA são propriedade de seus respectivos detentores. Este projeto é apenas para fins educacionais e de fã.
+</footer>
+</body>
+</html>

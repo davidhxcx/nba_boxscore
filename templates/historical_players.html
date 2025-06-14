@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Jogadores Históricos da NBA</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <a href="/" class="back-button">← Voltar para Jogos do Dia</a>
+    <h1 class="page-title">Jogadores Históricos da NBA</h1>
+    <form method="get" action="/historical_players" style="text-align:center; margin-bottom: 18px;">
+        <input type="text" name="search" placeholder="Buscar jogador por nome" value="{{ search|default('') }}">
+        <button type="submit">Buscar</button>
+    </form>
+    <div class="boxscore-border">
+        <div class="table-wrapper">
+            <table>
+                <tr>
+                    <th>Nome</th>
+                    <th>Status</th>
+                    <th>Ano de Início</th>
+                    <th>Ano de Fim</th>
+                    <th></th>
+                </tr>
+                {% for player in players %}
+                <tr>
+                    <td>{{ player.DISPLAY_FIRST_LAST }}</td>
+                    <td>{{ "Ativo" if player.ROSTERSTATUS == 1 else "Inativo" }}</td>
+                    <td>{{ player.FROM_YEAR }}</td>
+                    <td>{{ player.TO_YEAR }}</td>
+                    <td>
+                        <a href="/historical_player_stats/{{ player.PERSON_ID }}" class="player-stats-link" style="padding:4px 10px;font-size:0.95em;">Ver estatísticas</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+    <footer class="footer">
+    Desenvolvido por David Anderson Pereira • Projeto open source • <a href="https://github.com/davidhxcx/nba_boxscore" target="_blank">GitHub</a><br>
+    Logos e marcas NBA são propriedade de seus respectivos detentores. Este projeto é apenas para fins educacionais e de fã.
+</footer>
+</body>
+</html>

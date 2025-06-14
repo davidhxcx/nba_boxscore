@@ -2,25 +2,27 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from nba_api.stats.endpoints import leaguedashplayerstats
 from fastapi.staticfiles import StaticFiles
-from nba_fetcher import get_today_games, get_boxscore
-from models import init_db, save_stats
-from db import get_games_by_date
-from datetime import datetime
-from nba_api.stats.endpoints import commonallplayers
-from nba_api.stats.endpoints import playercareerstats
-from nba_api.stats.library.parameters import SeasonAll
-from nba_api.stats.library.http import NBAStatsHTTP
+from nba_api.stats.endpoints import commonallplayers, playercareerstats
 from nba_api.stats.static import teams
-from nba_fetcher import get_boxscore
-from db import init_db
-import uvicorn
+from nba_api.stats.library.http import NBAStatsHTTP
+from nba_fetcher import get_today_games, get_boxscore, STAT_TRANSLATIONS, STAT_FULL_NAMES
+from db import get_games_by_date, init_db
+from models import save_stats
+from datetime import datetime
 import logging
-import pandas as pd
+import uvicorn
 
+# Configuração do logger
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger("NBA Boxscore App")
+
+# Configuração do FastAPI e templates
+app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
+# Headers para NBA API
 NBAStatsHTTP.headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     'Accept-Language': 'en-US,en;q=0.9',
@@ -29,15 +31,6 @@ NBAStatsHTTP.headers = {
 }
 
 init_db()
-
-# Adicione estas linhas para configurar o logger
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger("NBA Boxscore App")
-
-
-app = FastAPI()
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
 
 def get_team_list():
     # Retorna uma lista de dicionários com 'abbreviation' e 'full_name'
@@ -51,7 +44,18 @@ async def api_boxscore(request: Request, game_id: str):
     boxscore = get_boxscore(game_id)
     return templates.TemplateResponse(
         "boxscore_partial.html",
-        {**boxscore, "request": request}
+        {
+            "home_team": boxscore["home_team"],
+            "away_team": boxscore["away_team"],
+            "home_score": boxscore["home_score"],
+            "away_score": boxscore["away_score"],
+            "home_players": boxscore["home_players"],
+            "away_players": boxscore["away_players"],
+            "stat_keys": boxscore["stat_keys"],
+            "stat_translations": STAT_TRANSLATIONS,
+            "stat_full_names": STAT_FULL_NAMES,
+            "request": request
+        }
     )
 
 @app.get("/")
@@ -67,18 +71,6 @@ async def index(request: Request, date: str = None, team: str = None):
         "index.html",
         {"request": request, "games": games, "today": today, "date": date, "team": team, "team_list": team_list}
     )
-
-@app.get("/")
-async def index(request: Request, date: str = None):
-    if not date:
-        date = datetime.now().strftime("%Y-%m-%d")
-    games = get_games_by_date(date)
-    today = datetime.strptime(date, "%Y-%m-%d").strftime("%d/%m/%Y")
-    return templates.TemplateResponse(
-        "index.html",
-        {"request": request, "games": games, "today": today, "date": date}
-    )
-
 
 @app.get("/historical_players")
 async def historical_players(request: Request, search: str = ""):
@@ -134,12 +126,6 @@ async def historical_player_stats(request: Request, player_id: int):
         }
     )
 
-@app.get("/")
-async def home(request: Request):
-    logger.info("Buscando jogos do dia...")
-    games = get_today_games()
-    return templates.TemplateResponse("index.html", {"request": request, "games": games})
-
 @app.get("/boxscore/{game_id}")
 async def boxscore(request: Request, game_id: str):
     logger.info(f"Buscando boxscore para o jogo {game_id}...")
@@ -159,25 +145,5 @@ async def boxscore(request: Request, game_id: str):
         }
     )
 
-    # Proteger contra falta da chave teamTricode antes de salvar
-    players_filtered = [p for p in players if 'teamTricode' in p]
-
-    save_stats(players_filtered, game_id)
-
-    # Organizar jogadores por time para a view
-    team_players = {}
-    for p in players_filtered:
-        team = p.get('teamTricode', 'Unknown')
-        if team not in team_players:
-            team_players[team] = []
-        team_players[team].append(p)
-
-    return templates.TemplateResponse("boxscore.html", {
-        "request": request,
-        "team_players": team_players,
-        "game_id": game_id
-    })
-
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
-

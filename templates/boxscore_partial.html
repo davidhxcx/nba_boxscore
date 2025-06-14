@@ -3,29 +3,42 @@
     <div class="table-wrapper">
         <table>
             <tr>
-                <th>Nome</th>
+                <th title="Nome do Jogador">Nome</th>
+                <th title="Posição">POS</th>
                 {% for stat in stat_keys %}
-                <th>{{ stat_translations.get(stat, stat) }}</th>
+                    <th title="{{ stat_full_names.get(stat, stat) }}">{{ stat_translations.get(stat, stat) }}</th>
                 {% endfor %}
+                <th title="Plus/Minus">+/-</th>
             </tr>
             {% for player in home_players %}
-           <tr>
-    <td>{{ player.name }}</td>
-    {% for stat in stat_keys %}
-    <td>
-        {% if stat.endswith('Percentage') %}
-            {% set val = player[stat] if stat in player else None %}
-            {% if val is not none %}
-                {{ '{:.1f}%'.format(val * 100) if val != 0 else '0.0%' }}
-            {% else %}
-                -
-            {% endif %}
-        {% else %}
-            {{ player[stat] if stat in player else 0 }}
-        {% endif %}
-    </td>
-    {% endfor %}
-</tr>
+            <tr class="plusminus-row"
+                data-plusminus="{{ player.plusMinus }}"
+                data-zerado="{% if not player.points and not player.assists and not player.reboundsTotal and not player.minutesCalculated %}1{% else %}0{% endif %}">
+                <td>{{ player.name }}</td>
+                <td>{{ player.position }}</td>
+                {% for stat in stat_keys %}
+                <td>
+                    {% if stat == "minutesCalculated" %}
+                        {% set min = player[stat] if stat in player else 0 %}
+                        {% if min %}
+                            {{ min.replace('PT', '').replace('M', '') }}
+                        {% else %}
+                            0
+                        {% endif %}
+                    {% elif stat.endswith('Percentage') %}
+                        {% set val = player[stat] if stat in player else None %}
+                        {% if val is not none %}
+                            {{ '{:.1f}%'.format(val * 100) if val != 0 else '0.0%' }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    {% else %}
+                        {{ player[stat] if stat in player else 0 }}
+                    {% endif %}
+                </td>
+                {% endfor %}
+                <td>{{ player.plusMinus }}</td>
+            </tr>
             {% endfor %}
         </table>
     </div>
@@ -33,29 +46,42 @@
     <div class="table-wrapper">
         <table>
             <tr>
-                <th>Nome</th>
+                <th title="Nome do Jogador">Nome</th>
+                <th title="Posição">POS</th>
                 {% for stat in stat_keys %}
-                <th>{{ stat_translations.get(stat, stat) }}</th>
+                    <th title="{{ stat_full_names.get(stat, stat) }}">{{ stat_translations.get(stat, stat) }}</th>
                 {% endfor %}
+                <th title="Plus/Minus">+/-</th>
             </tr>
             {% for player in away_players %}
-            <tr>
-    <td>{{ player.name }}</td>
-    {% for stat in stat_keys %}
-    <td>
-        {% if stat.endswith('Percentage') %}
-            {% set val = player[stat] if stat in player else None %}
-            {% if val is not none %}
-                {{ '{:.1f}%'.format(val * 100) if val != 0 else '0.0%' }}
-            {% else %}
-                -
-            {% endif %}
-        {% else %}
-            {{ player[stat] if stat in player else 0 }}
-        {% endif %}
-    </td>
-    {% endfor %}
-</tr>
+            <tr class="plusminus-row"
+                data-plusminus="{{ player.plusMinus }}"
+                data-zerado="{% if not player.points and not player.assists and not player.reboundsTotal and not player.minutesCalculated %}1{% else %}0{% endif %}">
+                <td>{{ player.name }}</td>
+                <td>{{ player.position }}</td>
+                {% for stat in stat_keys %}
+                <td>
+                    {% if stat == "minutesCalculated" %}
+                        {% set min = player[stat] if stat in player else 0 %}
+                        {% if min %}
+                            {{ min.replace('PT', '').replace('M', '') }}
+                        {% else %}
+                            0
+                        {% endif %}
+                    {% elif stat.endswith('Percentage') %}
+                        {% set val = player[stat] if stat in player else None %}
+                        {% if val is not none %}
+                            {{ '{:.1f}%'.format(val * 100) if val != 0 else '0.0%' }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    {% else %}
+                        {{ player[stat] if stat in player else 0 }}
+                    {% endif %}
+                </td>
+                {% endfor %}
+                <td>{{ player.plusMinus }}</td>
+            </tr>
             {% endfor %}
         </table>
     </div>

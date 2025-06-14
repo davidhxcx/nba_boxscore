@@ -29,6 +29,29 @@ STAT_TRANSLATIONS = {
     "foulsPersonal": "PF",
     "minutesCalculated": "MIN",
 }
+
+STAT_FULL_NAMES = {
+    "points": "Pontos",
+    "assists": "Assistências",
+    "reboundsTotal": "Rebotes Totais",
+    "reboundsOffensive": "Rebotes Ofensivos",
+    "reboundsDefensive": "Rebotes Defensivos",
+    "blocks": "Tocos",
+    "steals": "Roubos",
+    "fieldGoalsMade": "Arremessos Convertidos",
+    "fieldGoalsAttempted": "Arremessos Tentados",
+    "fieldGoalsPercentage": "Aproveitamento de Arremessos",
+    "threePointersMade": "3PT Convertidos",
+    "threePointersAttempted": "3PT Tentados",
+    "threePointersPercentage": "Aproveitamento de 3PT",
+    "freeThrowsMade": "Lances Livres Convertidos",
+    "freeThrowsAttempted": "Lances Livres Tentados",
+    "freeThrowsPercentage": "Aproveitamento de Lances Livres",
+    "turnovers": "Erros",
+    "foulsPersonal": "Faltas Pessoais",
+    "minutesCalculated": "Minutos Jogados",
+}
+
 STAT_ORDER = [
     "points",
     "assists",
@@ -50,7 +73,6 @@ STAT_ORDER = [
     "foulsPersonal",
     "minutesCalculated",
 ]
-
 
 def get_today_games():
     sb = scoreboard.ScoreBoard()
@@ -105,12 +127,21 @@ def get_boxscore(game_id):
             stats = p.get('statistics', {})
             for k, v in stats.items():
                 p[k] = v
+            p['plusMinus'] = p.get('plusMinus', 0)
+            p['position'] = p.get('position', '')
         for p in away_players:
             p['teamTricode'] = away_tricode
             p['team_logo'] = get_logo_path(away_tricode)
             stats = p.get('statistics', {})
             for k, v in stats.items():
                 p[k] = v
+            p['plusMinus'] = p.get('plusMinus', 0)
+            p['position'] = p.get('position', '')
+
+        # Ordena jogadores pelo plusMinus
+        home_players = sorted(home_players, key=lambda p: p.get('plusMinus', 0), reverse=True)
+        away_players = sorted(away_players, key=lambda p: p.get('plusMinus', 0), reverse=True)
+
         # Filtra apenas as estatísticas desejadas
         stat_keys = [k for k in STAT_ORDER if any(k in player for player in home_players + away_players)]
         return {
@@ -122,6 +153,7 @@ def get_boxscore(game_id):
             "away_players": away_players,
             "stat_keys": stat_keys,
             "stat_translations": STAT_TRANSLATIONS,
+            "stat_full_names": STAT_FULL_NAMES,
         }
     except Exception as e:
         logger.error(f"Erro ao buscar boxscore para o jogo {game_id}: {e}")
@@ -134,4 +166,5 @@ def get_boxscore(game_id):
             "away_players": [],
             "stat_keys": [],
             "stat_translations": STAT_TRANSLATIONS,
+            "stat_full_names": STAT_FULL_NAMES,
         }

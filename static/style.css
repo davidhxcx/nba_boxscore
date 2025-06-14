@@ -304,3 +304,10 @@ th {
     padding: 6px 6px;
     white-space: nowrap;
 }
+
+.plusminus-row {
+    transition: background 0.3s;
+}
+.plusminus-row[data-zerado="1"] {
+    background: none !important;
+}

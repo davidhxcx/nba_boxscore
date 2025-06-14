@@ -7,14 +7,11 @@
 </head>
 <body>
     <h1 class="page-title">Jogos do Dia</h1>
-    <form method="get" action="/" style="text-align:center; margin-bottom: 18px;">
-        <label for="date"><strong>Escolha a data:</strong></label>
-        <input type="date" id="date" name="date" value="{{ date }}">
-        <button type="submit">Buscar</button>
-    </form>
-        <div style="text-align:center; margin-bottom: 18px;">
-        <a  class="player-stats-link">Consultar estatísticas de jogadores da NBA</a>
+
+    <div style="text-align:center; margin-bottom: 18px;">
+        <a class="player-stats-link" href="/historical_players">Consultar estatísticas de jogadores da NBA</a>
     </div>
+
     <div class="historical-section">
         <form method="get" action="/historical_players" style="text-align:center; margin-bottom: 18px;">
             <label for="search"><strong>Buscar jogador:</strong></label>
@@ -22,21 +19,23 @@
             <button type="submit">Buscar</button>
         </form>
         <form method="get" action="/" style="text-align:center; margin-bottom: 18px;">
-    <label for="date"><strong>Escolha a data:</strong></label>
-    <input type="date" id="date" name="date" value="{{ date }}">
-    <label for="team" style="margin-left: 16px;"><strong>Time:</strong></label>
-    <select id="team" name="team">
-        <option value="">Todos</option>
-        {% for t in team_list %}
-            <option value="{{ t.abbreviation }}" {% if team == t.abbreviation %}selected{% endif %}>{{ t.full_name }}</option>
-        {% endfor %}
-    </select>
-    <button type="submit">Buscar</button>
-</form>
+            <label for="date"><strong>Escolha a data:</strong></label>
+            <input type="date" id="date" name="date" value="{{ date }}">
+            <label for="team" style="margin-left: 16px;"><strong>Time:</strong></label>
+            <select id="team" name="team">
+                <option value="">Todos</option>
+                {% for t in team_list %}
+                    <option value="{{ t.abbreviation }}" {% if team == t.abbreviation %}selected{% endif %}>{{ t.full_name }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Buscar</button>
+        </form>
     </div>
+
     <div style="text-align:center; margin-bottom: 18px;">
         <strong>Data:</strong> {{ today }}
     </div>
+
     <ul class="games-list">
         {% for game in games %}
         <li class="game-item">
@@ -63,11 +62,13 @@
         </li>
         {% endfor %}
     </ul>
+
     <footer class="footer">
-    Desenvolvido por David Anderson Pereira • Projeto open source • <a href="https://github.com/davidhxcx/nba_boxscore" target="_blank">GitHub</a><br>
-    Logos e marcas NBA são propriedade de seus respectivos detentores. Este projeto é apenas para fins educacionais e de fã.
-</footer>
-<script src="/static/boxscore.js"></script>
-<div style="height: 48px;"></div>
+        Desenvolvido por David Anderson Pereira • Projeto open source • 
+        <a href="https://github.com/davidhxcx/nba_boxscore" target="_blank">GitHub</a><br>
+        Logos e marcas NBA são propriedade de seus respectivos detentores. Este projeto é apenas para fins educacionais e de fã.
+    </footer>
+    <script src="/static/boxscore.js"></script>
+    <div style="height: 48px;"></div>
 </body>
 </html>

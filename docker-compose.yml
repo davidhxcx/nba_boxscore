@@ -1,0 +1,10 @@
+version: "3.9"
+services:
+  nba_boxscore:
+    build: .
+    container_name: nba_boxscore
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./nba_games.db:/app/nba_games.db
+    restart: unless-stopped

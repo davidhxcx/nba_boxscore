@@ -8,6 +8,7 @@ function toggleBoxscore(gameId) {
                 .then(html => {
                     boxscoreDiv.innerHTML = html;
                     boxscoreDiv.dataset.loaded = "1";
+                    colorirPlusMinus();
                 })
                 .catch(() => {
                     boxscoreDiv.innerHTML = "<div style='color:red'>Erro ao carregar boxscore.</div>";
@@ -45,3 +46,54 @@ function colorirPlusMinus() {
 document.addEventListener("DOMContentLoaded", colorirPlusMinus);
 document.addEventListener("htmx:afterSwap", colorirPlusMinus); // Se usar htmx
 // Ou, se usa fetch, chame colorirPlusMinus() após inserir o HTML do boxscore
+
+// Atualização automática dos boxscores abertos a cada 5 segundos
+function updateOpenBoxscores() {
+    document.querySelectorAll('.boxscore-content').forEach(function(boxscoreDiv) {
+        if (boxscoreDiv.style.display !== "none") {
+            const gameId = boxscoreDiv.id.replace('boxscore-', '');
+            fetch('/api/boxscore/' + gameId)
+                .then(response => response.text())
+                .then(html => {
+                    boxscoreDiv.innerHTML = html;
+                    colorirPlusMinus();
+                });
+        }
+    });
+}
+setInterval(updateOpenBoxscores, 5000);
+
+// Atualização automática dos placares e status da lista de jogos a cada 5 segundos
+function updateGamesList() {
+    var dateInput = document.getElementById('date');
+    var date = dateInput ? dateInput.value : null;
+    fetch('/api/games' + (date ? '?date=' + date : ''))
+        .then(response => response.json())
+        .then(games => {
+            games.forEach(function(game) {
+                // Atualiza o placar
+                var scoreSpan = document.getElementById('score-' + game.game_id);
+                if (scoreSpan) {
+                    scoreSpan.textContent = game.home_score + " x " + game.away_score;
+                }
+                // Atualiza o status
+                var statusDiv = document.getElementById('status-' + game.game_id);
+                if (statusDiv) {
+                    let dotClass = "status-dot ";
+                    if (game.status === 'Em andamento') {
+                        dotClass += "dot-live";
+                    } else if (game.status === 'Encerrado') {
+                        dotClass += "dot-finished";
+                    } else if (game.status_text && game.status_text.toLowerCase().includes('half')) {
+                        dotClass += "dot-halftime";
+                    } else {
+                        dotClass += "dot-scheduled";
+                    }
+                    let statusText = (game.status_text && game.status_text.toLowerCase().includes('half')) ? "Intervalo" : game.status;
+                    let timeHtml = game.time ? `<span class="game-time">${game.time}</span>` : "";
+                    statusDiv.innerHTML = `<span class="${dotClass}"></span><strong>Status:</strong> ${statusText} ${timeHtml}`;
+                }
+            });
+        });
+}
+setInterval(updateGamesList, 5000);

@@ -17,13 +17,19 @@ def init_db():
     conn.commit()
     conn.close()
 
-def save_game(game_id, date, data):
-    conn = sqlite3.connect(DB_PATH)
+
+def save_game(game_id, date, game_data):
+    conn = sqlite3.connect('nba_games.db')
     c = conn.cursor()
+    # Tente atualizar primeiro
     c.execute("""
-        INSERT OR REPLACE INTO games (game_id, date, data)
-        VALUES (?, ?, ?)
-    """, (game_id, date, json.dumps(data)))
+        UPDATE games SET data = ? WHERE game_id = ? AND date = ?
+    """, (json.dumps(game_data), game_id, date))
+    if c.rowcount == 0:
+        # Se não atualizou nada, insere
+        c.execute("""
+            INSERT INTO games (game_id, date, data) VALUES (?, ?, ?)
+        """, (game_id, date, json.dumps(game_data)))
     conn.commit()
     conn.close()
 

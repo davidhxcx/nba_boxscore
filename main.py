@@ -1,6 +1,6 @@
 # Este projeto está licenciado sob a GNU GPLv3 - veja o arquivo LICENSE para detalhes.
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from nba_api.stats.endpoints import commonallplayers, playercareerstats
@@ -58,10 +58,24 @@ async def api_boxscore(request: Request, game_id: str):
         }
     )
 
+@app.get("/api/games")
+async def api_games(date: str = None, team: str = None):
+    if not date:
+        date = datetime.now().strftime("%Y-%m-%d")
+    if date == datetime.now().strftime("%Y-%m-%d"):
+        get_today_games()
+    games = get_games_by_date(date)
+    if team:
+        games = [g for g in games if g["home_team"] == team or g["away_team"] == team]
+    return JSONResponse(games)
+
 @app.get("/")
 async def index(request: Request, date: str = None, team: str = None):
     if not date:
         date = datetime.now().strftime("%Y-%m-%d")
+    # Sempre busca da API e salva no banco se for hoje
+    if date == datetime.now().strftime("%Y-%m-%d"):
+        get_today_games()
     games = get_games_by_date(date)
     if team:
         games = [g for g in games if g["home_team"] == team or g["away_team"] == team]

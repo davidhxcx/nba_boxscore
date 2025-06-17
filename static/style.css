@@ -311,3 +311,30 @@ th {
 .plusminus-row[data-zerado="1"] {
     background: none !important;
 }
+
+.status-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+    background: #bbb;
+}
+.dot-live {
+    background: #00e676;
+    animation: blink 1s infinite;
+}
+.dot-finished {
+    background: #222;
+}
+.dot-halftime {
+    background: #ffc107;
+}
+.dot-scheduled {
+    background: #bbb;
+}
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+}

@@ -103,6 +103,7 @@ def get_today_games():
             "home_score": g["homeTeam"].get("score", 0),
             "away_score": g["awayTeam"].get("score", 0),
             "status": status,
+            "status_text": g.get("gameStatusText", ""),  # <-- Adicionado aqui
             "time": game_time_br
         }
         save_game(g["gameId"], today, game_data)

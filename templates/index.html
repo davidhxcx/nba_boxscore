@@ -44,13 +44,29 @@
                     <img class="team-logo" src="{{ game.home_logo }}" alt="{{ game.home_team }}">
                     <strong>{{ game.home_team }}</strong>
                 </span>
-                <span class="score">{{ game.home_score }} x {{ game.away_score }}</span>
+                <span class="score" id="score-{{ game.game_id }}">{{ game.home_score }} x {{ game.away_score }}</span>
                 <span class="team-block">
                     <img class="team-logo" src="{{ game.away_logo }}" alt="{{ game.away_team }}">
                     <strong>{{ game.away_team }}</strong>
                 </span>
-                <div class="game-status {{ game.status|lower|replace(' ', '-') }}">
-                    <strong>Status:</strong> {{ game.status }}
+                <div class="game-status {{ game.status|lower|replace(' ', '-') }}" id="status-{{ game.game_id }}">
+                    <span class="status-dot 
+                        {% if game.status == 'Em andamento' %}
+                            dot-live
+                        {% elif game.status == 'Encerrado' %}
+                            dot-finished
+                        {% elif game.status_text and 'half' in game.status_text|lower %}
+                            dot-halftime
+                        {% else %}
+                            dot-scheduled
+                        {% endif %}
+                    "></span>
+                    <strong>Status:</strong>
+                    {% if game.status_text and 'half' in game.status_text|lower %}
+                        Intervalo
+                    {% else %}
+                        {{ game.status }}
+                    {% endif %}
                     {% if game.time %}
                         <span class="game-time">{{ game.time }}</span>
                     {% endif %}
@@ -69,6 +85,7 @@
         Logos e marcas NBA são propriedade de seus respectivos detentores. Este projeto é apenas para fins educacionais e de fã.
     </footer>
     <script src="/static/boxscore.js"></script>
+    <script src="/static/games_update.js"></script>
     <div style="height: 48px;"></div>
 </body>
 </html>
